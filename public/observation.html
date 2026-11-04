@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observe • Kim’s Game</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card: #1a2338;
+            --accent: #6366f1;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --timer-red: #ef4444;
+        }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bubble { position: absolute; background: rgba(99,102,241,0.16); animation: floatUp linear infinite; box-shadow: 0 0 40px rgba(99,102,241,0.35); }
+        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.6) translateX(0); opacity: 0; } 15% { opacity: 0.8; } 100% { transform: translateY(-140px) scale(1.4) translateX(var(--sway)); opacity: 0; } }
+        .bubble:nth-child(1) { width: 90px; height: 70px; left: 12%; animation-duration: 24s; animation-delay: -2s; border-radius: 50%; --sway: 50px; }
+        .bubble:nth-child(2) { width: 60px; height: 70px; left: 28%; animation-duration: 19s; animation-delay: -7s; border-radius: 60% 40% 70% 50%; --sway: -65px; }
+        .bubble:nth-child(3) { width: 115px; height: 90px; left: 45%; animation-duration: 31s; animation-delay: -1s; border-radius: 50%; --sway: 75px; }
+        .bubble:nth-child(4) { width: 70px; height: 60px; left: 62%; animation-duration: 22s; animation-delay: -5s; border-radius: 40% 60% 50% 70%; --sway: -50px; }
+        .bubble:nth-child(5) { width: 100px; height: 80px; left: 78%; animation-duration: 27s; animation-delay: -4s; border-radius: 50%; --sway: 60px; }
+        .bubble:nth-child(6) { width: 50px; height: 65px; left: 18%; animation-duration: 17s; animation-delay: -9s; border-radius: 70% 50% 60% 40%; --sway: -40px; }
+        .bubble:nth-child(7) { width: 125px; height: 85px; left: 52%; animation-duration: 34s; animation-delay: -3s; border-radius: 50%; --sway: 85px; }
+        .bubble:nth-child(8) { width: 65px; height: 55px; left: 88%; animation-duration: 21s; animation-delay: -6s; border-radius: 40% 70% 60% 50%; --sway: -70px; }
+        .bubble:nth-child(9) { width: 80px; height: 70px; left: 35%; animation-duration: 25s; animation-delay: -8s; border-radius: 50%; --sway: 55px; }
+        .bubble:nth-child(10) { width: 55px; height: 75px; left: 72%; animation-duration: 20s; animation-delay: -10s; border-radius: 60% 40% 70% 50%; --sway: -60px; }
+        .content { position: relative; z-index: 1; }
+        .header { background: #111827; padding: 1.1rem 3rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; color: #e0f2fe; }
+        .nav-links a { color: var(--text-light); text-decoration: none; margin-left: 2.2rem; font-weight: 500; }
+        .nav-links a:hover { color: white; }
+        .timer-container { text-align: center; padding: 2rem; background: var(--card); margin: 2rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        .timer { font-size: 4.5rem; font-weight: 700; margin: 1rem 0; font-family: monospace; }
+        .difficulty-label { font-size: 1.3rem; color: var(--text-light); margin-bottom: 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.2rem; max-width: 1000px; margin: 3rem auto; padding: 0 2rem; }
+        .item { background: var(--card); border-radius: 16px; padding: 1rem; box-shadow: 0 15px 35px rgba(0,0,0,0.5); transition: transform 0.3s ease; text-align: center; }
+        .item:hover { transform: scale(1.03); }
+        .item img { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; }
+        .item-label { text-align: center; margin-top: 12px; font-size: 1rem; color: var(--text-light); font-weight: 500; min-height: 1.4em; }
+        .next-btn { background: var(--accent); color: white; padding: 1rem 3rem; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 600; cursor: pointer; margin: 3rem auto; display: block; }
+        .next-btn:disabled { background: #475569; cursor: not-allowed; }
+
+        @media (max-width: 640px) {
+            .header { padding: 0.9rem 1.25rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
+            .logo { font-size: 26px; white-space: nowrap; }
+            .nav-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; }
+            .nav-links a { margin-left: 0 !important; }
+            .timer-container { margin: 1rem; padding: 1.25rem; }
+            .timer { font-size: 3.5rem; }
+            .grid { grid-template-columns: repeat(2, 1fr); padding: 0 1rem; margin: 1.5rem auto; }
+            .item img { height: 110px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+    <div class="content">
+        <div class="header">
+            <div class="logo">Kim’s Game</div>
+            <div class="nav-links" id="nav-links"></div>
+        </div>
+        <div class="timer-container">
+            <div class="difficulty-label" id="difficulty-label">Easy • 6 items • 45 seconds</div>
+            <div class="timer" id="timer">45</div>
+            <div>Memorise these objects before time runs out</div>
+        </div>
+        <div class="grid" id="image-grid"></div>
+        <div style="text-align:center;">
+            <button class="next-btn" id="next-btn" onclick="goToRecall()" disabled>Time's Up — Go to Recall</button>
+        </div>
+    </div>
+    <script>
+        async function updateNavigation() {
+            try {
+                const response = await fetch('/api/auth/me');
+                const data = await response.json();
+                const nav = document.getElementById('nav-links');
+                if (data.loggedIn) {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/dashboard.html">Dashboard</a>
+                        <a href="/difficulty.html">Change Difficulty</a>
+                        <a href="#" onclick="logout(); return false;">Logout</a>
+                    `;
+                } else {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/login.html">Login</a>
+                        <a href="/register.html">Register</a>
+                        <a href="/difficulty.html">Change Difficulty</a>
+                    `;
+                }
+            } catch (err) {
+                console.error('Could not update navigation');
+            }
+        }
+        async function logout() {
+            try { await fetch('/api/logout', { method: 'POST' }); } catch(e) {}
+            window.location.href = '/';
+        }
+        const params = new URLSearchParams(window.location.search);
+        const levels = {
+            easy: { items: 6, seconds: 45, label: 'Easy • 6 items • 45 seconds' },
+            medium: { items: 10, seconds: 30, label: 'Medium • 10 items • 30 seconds' },
+            hard: { items: 15, seconds: 20, label: 'Hard • 15 items • 20 seconds' }
+        };
+        const difficulty = levels[params.get('difficulty')] ? params.get('difficulty') : 'easy';
+        let timeLeft = levels[difficulty].seconds;
+        const numItems = levels[difficulty].items;
+        document.getElementById('difficulty-label').textContent = levels[difficulty].label;
+        const objectPool = [
+            "Apple","Banana","Orange","Strawberry","Grapes","Carrot","Tomato","Cucumber","Onion","Potato",
+            "Broccoli","Keys","Watch","Wallet","Glasses","Pen","Pencil","Notebook","Book","Laptop",
+            "Phone","Headphones","Camera","Mug","Cup","Bowl","Plate","Fork","Spoon","Knife",
+            "Scissors","Hat","Backpack","Umbrella","Bottle","Flashlight","Candle","Vase","Plant","Clock",
+            "Lamp","Chair","Shoes","Ring","Necklace","Bag","Map","Compass","Calculator","Ruler",
+            "Magnifying Glass","Binoculars","Globe","Comb","Brush","Soap","Towel","Toothbrush","Mirror","Cap",
+            "Jacket","Sweater","T-shirt","Jeans","Dress","Coat"
+        ];
+        const selectedObjects = shuffle([...objectPool]).slice(0, numItems);
+
+        function shuffle(list) {
+            for (let i = list.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [list[i], list[j]] = [list[j], list[i]];
+            }
+            return list;
+        }
+
+        function placeholderImage(name) {
+            const label = name.replace(/[&<>"']/g, '');
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#111827"/><text x="50%" y="50%" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="32" text-anchor="middle" dominant-baseline="middle">${label}</text></svg>`;
+            return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+        }
+
+        async function loadImages() {
+            const grid = document.getElementById('image-grid');
+            grid.innerHTML = '';
+            const imgs = [];
+
+            selectedObjects.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'item';
+
+                const img = document.createElement('img');
+                img.alt = name;
+                img.src = placeholderImage(name);
+                img.style.width = '100%';
+                img.style.height = '140px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '12px';
+
+                const label = document.createElement('div');
+                label.className = 'item-label';
+                label.textContent = name;
+
+                div.appendChild(img);
+                div.appendChild(label);
+                grid.appendChild(div);
+
+                imgs.push(img);
+            });
+
+            await Promise.all(selectedObjects.map(async (name, index) => {
+                try {
+                    const response = await fetch(`/api/image?q=${encodeURIComponent(name)}&size=small`);
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    if (data.url) imgs[index].src = data.url;
+                } catch (error) {
+                    console.error(`Error fetching image for ${name}:`, error);
+                }
+            }));
+        }
+
+        loadImages();
+
+        const timerEl = document.getElementById('timer');
+        const nextBtn = document.getElementById('next-btn');
+        timerEl.textContent = timeLeft;
+        const interval = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft;
+            if (timeLeft <= 10) timerEl.style.color = '#ef4444';
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                timerEl.textContent = "0";
+                nextBtn.disabled = false;
+                nextBtn.textContent = "Time's Up — Go to Recall";
+                setTimeout(goToRecall, 800);
+            }
+        }, 1000);
+        function goToRecall() {
+            const names = selectedObjects;
+            const namesParam = encodeURIComponent(JSON.stringify(names));
+            window.location.href = `/recall.html?difficulty=${difficulty}&objects=${namesParam}`;
+        }
+        window.onload = updateNavigation;
+    </script>
+</body>
+</html>

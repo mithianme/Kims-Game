@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Difficulty • Kim’s Game</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card: #1a2338;
+            --accent: #6366f1;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bubble { position: absolute; background: rgba(99,102,241,0.16); animation: floatUp linear infinite; box-shadow: 0 0 40px rgba(99,102,241,0.35); }
+        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.6) translateX(0); opacity: 0; } 15% { opacity: 0.8; } 100% { transform: translateY(-140px) scale(1.4) translateX(var(--sway)); opacity: 0; } }
+        .bubble:nth-child(1) { width: 90px; height: 70px; left: 12%; animation-duration: 24s; animation-delay: -2s; border-radius: 50%; --sway: 50px; }
+        .bubble:nth-child(2) { width: 60px; height: 70px; left: 28%; animation-duration: 19s; animation-delay: -7s; border-radius: 60% 40% 70% 50%; --sway: -65px; }
+        .bubble:nth-child(3) { width: 115px; height: 90px; left: 45%; animation-duration: 31s; animation-delay: -1s; border-radius: 50%; --sway: 75px; }
+        .bubble:nth-child(4) { width: 70px; height: 60px; left: 62%; animation-duration: 22s; animation-delay: -5s; border-radius: 40% 60% 50% 70%; --sway: -50px; }
+        .bubble:nth-child(5) { width: 100px; height: 80px; left: 78%; animation-duration: 27s; animation-delay: -4s; border-radius: 50%; --sway: 60px; }
+        .bubble:nth-child(6) { width: 50px; height: 65px; left: 18%; animation-duration: 17s; animation-delay: -9s; border-radius: 70% 50% 60% 40%; --sway: -40px; }
+        .bubble:nth-child(7) { width: 125px; height: 85px; left: 52%; animation-duration: 34s; animation-delay: -3s; border-radius: 50%; --sway: 85px; }
+        .bubble:nth-child(8) { width: 65px; height: 55px; left: 88%; animation-duration: 21s; animation-delay: -6s; border-radius: 40% 70% 60% 50%; --sway: -70px; }
+        .bubble:nth-child(9) { width: 80px; height: 70px; left: 35%; animation-duration: 25s; animation-delay: -8s; border-radius: 50%; --sway: 55px; }
+        .bubble:nth-child(10) { width: 55px; height: 75px; left: 72%; animation-duration: 20s; animation-delay: -10s; border-radius: 60% 40% 70% 50%; --sway: -60px; }
+
+        .content { position: relative; z-index: 1; }
+
+        .header { background: #111827; padding: 1.1rem 3rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; color: #e0f2fe; }
+        .nav-links a { color: var(--text-light); text-decoration: none; margin-left: 2.2rem; font-weight: 500; }
+        .nav-links a:hover { color: white; }
+
+        .container { max-width: 900px; margin: 80px auto; padding: 2rem; text-align: center; }
+        .title { font-size: 2.4rem; font-weight: 700; margin-bottom: 3rem; color: #f0f9ff; }
+
+        .cards { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .card {
+            width: 280px;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 70px -15px rgba(99,102,241,0.3);
+        }
+
+        .level { font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem; }
+        .easy { color: #22c55e; }
+        .medium { color: #eab308; }
+        .hard { color: #ef4444; }
+
+        .details { color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.6; }
+        .start-btn { background: var(--accent); color: white; padding: 1rem 2rem; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; width: 100%; }
+
+        @media (max-width: 640px) {
+            .header { padding: 0.9rem 1.25rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
+            .logo { font-size: 26px; white-space: nowrap; }
+            .nav-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; }
+            .nav-links a { margin-left: 0 !important; }
+            .container { margin: 40px auto; padding: 1rem; }
+            .title { font-size: 2rem; margin-bottom: 2rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <div class="logo">Kim’s Game</div>
+            <div class="nav-links" id="nav-links"></div>
+        </div>
+
+        <div class="container">
+            <div class="title">Choose Difficulty</div>
+            <div class="cards">
+                <div class="card" onclick="startGame('easy')">
+                    <div class="level easy">Easy</div>
+                    <div class="details">6 items<br>45 seconds to memorise</div>
+                    <button class="start-btn">Play Easy</button>
+                </div>
+
+                <div class="card" onclick="startGame('medium')">
+                    <div class="level medium">Medium</div>
+                    <div class="details">10 items<br>30 seconds to memorise</div>
+                    <button class="start-btn">Play Medium</button>
+                </div>
+
+                <div class="card" onclick="startGame('hard')">
+                    <div class="level hard">Hard</div>
+                    <div class="details">15 items<br>20 seconds to memorise</div>
+                    <button class="start-btn">Play Hard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startGame(difficulty) {
+            window.location.href = `/observation.html?difficulty=${difficulty}`;
+        }
+
+        async function updateNavigation() {
+            try {
+                const response = await fetch('/api/auth/me');
+                const data = await response.json();
+                const nav = document.getElementById('nav-links');
+
+                if (data.loggedIn) {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/dashboard.html">Dashboard</a>
+                        <a href="/difficulty.html">Change Difficulty</a>
+                        <a href="#" onclick="logout()" style="margin-left:2.2rem;">Logout</a>
+                    `;
+                } else {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/login.html">Login</a>
+                        <a href="/register.html">Register</a>
+                        <a href="/difficulty.html">Change Difficulty</a>
+                    `;
+                }
+            } catch (err) {
+                console.error('Could not update navigation');
+                document.getElementById('nav-links').innerHTML = `
+                    <a href="/">Home</a>
+                    <a href="/login.html">Login</a>
+                    <a href="/register.html">Register</a>
+                    <a href="/difficulty.html">Change Difficulty</a>
+                `;
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (err) {
+                console.error(err);
+            }
+            window.location.href = '/';
+        }
+
+        window.onload = updateNavigation;
+    </script>
+</body>
+</html>

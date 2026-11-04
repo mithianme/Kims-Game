@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard • Kim’s Game</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card: #1a2338;
+            --accent: #6366f1;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --gold: #fbbf24;
+            --silver: #94a3b8;
+            --bronze: #f59e0b;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .header {
+            background: #111827;
+            padding: 1.1rem 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; color: #e0f2fe; }
+        .nav-links a { color: var(--text-light); text-decoration: none; margin-left: 2.2rem; font-weight: 500; }
+        .nav-links a:hover { color: white; }
+
+        .container { max-width: 900px; margin: 60px auto; padding: 2rem; }
+        .title { font-size: 2.4rem; font-weight: 700; margin-bottom: 2rem; text-align: center; animation: fadeInUp 0.6s ease backwards; }
+
+        .table-wrap {
+            border-radius: 20px;
+            overflow-x: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card);
+        }
+
+        th {
+            background: #111827;
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        td {
+            padding: 1.2rem;
+            border-bottom: 1px solid #334155;
+            transition: background 0.2s;
+        }
+
+        tr:hover td {
+            background: #111827;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .rank {
+            font-weight: 700;
+            font-size: 1.1rem;
+            width: 60px;
+        }
+
+        .gold { color: var(--gold); }
+        .silver { color: var(--silver); }
+        .bronze { color: var(--bronze); }
+
+        .username { font-weight: 500; }
+        .score { font-weight: 700; font-size: 1.15rem; color: var(--accent); }
+        .accuracy { color: #22c55e; }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        .btn {
+            padding: 1.1rem 2.5rem;
+            border-radius: 14px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 200px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-primary { background: var(--accent); color: white; border: none; }
+        .btn-secondary { background: transparent; color: var(--text-light); border: 2px solid var(--border); }
+
+        .btn:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+
+        @media (max-width: 640px) {
+            .header { padding: 0.9rem 1.25rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
+            .logo { font-size: 26px; white-space: nowrap; }
+            .nav-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; }
+            .nav-links a { margin-left: 0 !important; }
+            .container { margin: 30px auto; padding: 1rem; }
+            .title { font-size: 2rem; }
+            th, td { padding: 0.75rem; white-space: nowrap; }
+            .btn { min-width: 0; flex: 1 1 100%; }
+            .actions { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">Kim’s Game</div>
+        <div class="nav-links" id="nav-links"></div>
+    </div>
+
+    <div class="container">
+        <div class="title">Leaderboard</div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Accuracy</th>
+                        <th>Difficulty</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.location.href='/difficulty.html'">Play New Game</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/dashboard.html'">My Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        async function updateNavigation() {
+            try {
+                const response = await fetch('/api/auth/me');
+                const data = await response.json();
+                const nav = document.getElementById('nav-links');
+
+                if (data.loggedIn) {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/dashboard.html">Dashboard</a>
+                        <a href="/difficulty.html">Play New Game</a>
+                        <a href="/leaderboard.html">Leaderboard</a>
+                        <a href="#" onclick="logout()" style="margin-left:2.2rem;">Logout</a>
+                    `;
+                } else {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/login.html">Login</a>
+                        <a href="/register.html">Register</a>
+                        <a href="/difficulty.html">Play as Guest</a>
+                    `;
+                }
+            } catch (err) {
+                console.error('Could not update navigation');
+                document.getElementById('nav-links').innerHTML = `
+                    <a href="/">Home</a>
+                    <a href="/login.html">Login</a>
+                    <a href="/register.html">Register</a>
+                    <a href="/difficulty.html">Play as Guest</a>
+                `;
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (err) {
+                console.error(err);
+            }
+            window.location.href = '/';
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('/api/leaderboard');
+                const data = await response.json();
+
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = '';
+
+                data.global.forEach((entry, index) => {
+                    const rank = index + 1;
+                    let rankClass = '';
+                    if (rank === 1) rankClass = 'gold';
+                    else if (rank === 2) rankClass = 'silver';
+                    else if (rank === 3) rankClass = 'bronze';
+
+                    const row = document.createElement('tr');
+                    row.style.animation = `fadeInUp 0.6s ease backwards ${index * 80}ms`;
+
+                    const cells = [
+                        [`rank ${rankClass}`, `#${rank}`],
+                        ['username', entry.username],
+                        ['score', entry.score],
+                        ['accuracy', `${Number(entry.accuracy)}%`],
+                        ['', entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1)],
+                        ['', new Date(entry.played_at).toLocaleDateString('en-GB')]
+                    ];
+                    cells.forEach(([className, value]) => {
+                        const td = document.createElement('td');
+                        if (className) td.className = className.trim();
+                        td.textContent = value;
+                        row.appendChild(td);
+                    });
+                    tbody.appendChild(row);
+                });
+
+                if (data.global.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:3rem; color:var(--text-light);">No games played yet.</td></tr>`;
+                }
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('leaderboard-body').innerHTML = `
+                    <tr><td colspan="6" style="text-align:center; padding:3rem; color:var(--text-light);">
+                        Could not load leaderboard. Please try again later.
+                    </td></tr>`;
+            }
+        }
+
+        window.onload = function() {
+            updateNavigation();
+            loadLeaderboard();
+        };
+    </script>
+</body>
+</html>

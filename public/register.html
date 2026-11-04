@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register • Kim’s Game</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card: #1a2338;
+            --accent: #6366f1;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bubble { position: absolute; background: rgba(99,102,241,0.16); animation: floatUp linear infinite; box-shadow: 0 0 40px rgba(99,102,241,0.35); }
+        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.6) translateX(0); opacity: 0; } 15% { opacity: 0.8; } 100% { transform: translateY(-140px) scale(1.4) translateX(var(--sway)); opacity: 0; } }
+        .bubble:nth-child(1) { width: 90px; height: 70px; left: 12%; animation-duration: 24s; animation-delay: -2s; border-radius: 50%; --sway: 50px; }
+        .bubble:nth-child(2) { width: 60px; height: 70px; left: 28%; animation-duration: 19s; animation-delay: -7s; border-radius: 60% 40% 70% 50%; --sway: -65px; }
+        .bubble:nth-child(3) { width: 115px; height: 90px; left: 45%; animation-duration: 31s; animation-delay: -1s; border-radius: 50%; --sway: 75px; }
+        .bubble:nth-child(4) { width: 70px; height: 60px; left: 62%; animation-duration: 22s; animation-delay: -5s; border-radius: 40% 60% 50% 70%; --sway: -50px; }
+        .bubble:nth-child(5) { width: 100px; height: 80px; left: 78%; animation-duration: 27s; animation-delay: -4s; border-radius: 50%; --sway: 60px; }
+        .bubble:nth-child(6) { width: 50px; height: 65px; left: 18%; animation-duration: 17s; animation-delay: -9s; border-radius: 70% 50% 60% 40%; --sway: -40px; }
+        .bubble:nth-child(7) { width: 125px; height: 85px; left: 52%; animation-duration: 34s; animation-delay: -3s; border-radius: 50%; --sway: 85px; }
+        .bubble:nth-child(8) { width: 65px; height: 55px; left: 88%; animation-duration: 21s; animation-delay: -6s; border-radius: 40% 70% 60% 50%; --sway: -70px; }
+        .bubble:nth-child(9) { width: 80px; height: 70px; left: 35%; animation-duration: 25s; animation-delay: -8s; border-radius: 50%; --sway: 55px; }
+        .bubble:nth-child(10) { width: 55px; height: 75px; left: 72%; animation-duration: 20s; animation-delay: -10s; border-radius: 60% 40% 70% 50%; --sway: -60px; }
+
+        .content { position: relative; z-index: 1; }
+
+        .header { background: #111827; padding: 1.1rem 3rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; color: #e0f2fe; }
+        .nav-links a { color: var(--text-light); text-decoration: none; margin-left: 2.2rem; font-weight: 500; }
+        .nav-links a:hover { color: white; }
+
+        .container {
+            max-width: 380px;
+            margin: 80px auto 0;
+            padding: 28px 28px;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+        h1 { text-align: center; font-size: 30px; font-weight: 700; margin-bottom: 30px; color: #f0f9ff; }
+
+        .form-group { margin-bottom: 22px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-light); font-size: 14px; }
+        input { width: 100%; padding: 14px 16px; background: #111827; border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 16px; box-sizing: border-box; }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.3); }
+
+        .btn-register { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s ease; }
+        .btn-register:hover { background: #4f46e5; transform: translateY(-2px); }
+
+        .links { text-align: center; margin-top: 28px; font-size: 15px; }
+        .links a { color: var(--text-light); text-decoration: none; }
+        .links a:hover { color: white; }
+
+        .error { color: #ef4444; text-align: center; margin-top: 15px; display: none; font-weight: 500; padding: 10px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; }
+        .success { color: #22c55e; text-align: center; margin-top: 15px; display: none; }
+
+        .password-requirements {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-light);
+            padding: 12px;
+            background: #111827;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .req-item {
+            margin-bottom: 6px;
+        }
+        .req-item.valid {
+            color: #22c55e;
+        }
+        .req-item.invalid {
+            color: #ef4444;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: underline;
+        }
+        .form-group.password-group { position: relative; }
+
+        @media (max-width: 640px) {
+            .header { padding: 0.9rem 1.25rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
+            .logo { font-size: 26px; white-space: nowrap; }
+            .nav-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; }
+            .nav-links a { margin-left: 0 !important; }
+            .container { margin: 40px 16px 0; padding: 28px 22px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bubbles">
+        <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+        <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <div class="logo">Kim’s Game</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/login.html">Login</a>
+                <a href="/register.html">Register</a>
+                <a href="/difficulty.html">Play as Guest</a>
+            </div>
+        </div>
+
+        <div class="container">
+            <h1>Create Account</h1>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="3 to 20 letters, numbers or _" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" title="3 to 20 characters: letters, numbers and underscores" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="you@example.com" maxlength="100" autocomplete="email" required>
+                </div>
+
+                <div class="form-group password-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Create a strong password" autocomplete="new-password" required>
+                    <span class="password-toggle" id="togglePassword">Show</span>
+
+                    <div class="password-requirements" id="passwordRequirements">
+                        <div class="req-item" data-rule="length">At least 8 characters</div>
+                        <div class="req-item" data-rule="upper">One uppercase letter (A-Z)</div>
+                        <div class="req-item" data-rule="lower">One lowercase letter (a-z)</div>
+                        <div class="req-item" data-rule="number">One number (0-9)</div>
+                        <div class="req-item" data-rule="special">One special character (!@#$%^&*)</div>
+                    </div>
+                </div>
+
+                <div class="form-group password-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" placeholder="Confirm your password" autocomplete="new-password" required>
+                    <span class="password-toggle" id="toggleConfirm">Show</span>
+                </div>
+
+                <button type="submit" class="btn-register">Create Account</button>
+            </form>
+
+            <div id="error" class="error"></div>
+            <div id="success" class="success"></div>
+
+            <div class="links">
+                Already have an account? <a href="/login.html">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm-password');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirm = document.getElementById('toggleConfirm');
+        const reqItems = document.querySelectorAll('.req-item');
+
+        const rules = {
+            length: pw => pw.length >= 8,
+            upper: pw => /[A-Z]/.test(pw),
+            lower: pw => /[a-z]/.test(pw),
+            number: pw => /\d/.test(pw),
+            special: pw => /[!@#$%^&*]/.test(pw)
+        };
+
+        function updateRequirements(pw) {
+            let allValid = true;
+            reqItems.forEach(item => {
+                const rule = item.dataset.rule;
+                const isValid = rules[rule](pw);
+                if (isValid) {
+                    item.classList.add('valid');
+                    item.classList.remove('invalid');
+                } else {
+                    item.classList.add('invalid');
+                    item.classList.remove('valid');
+                    allValid = false;
+                }
+            });
+            return allValid;
+        }
+
+        passwordInput.addEventListener('input', () => {
+            updateRequirements(passwordInput.value);
+        });
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+
+        toggleConfirm.addEventListener('click', () => {
+            const type = confirmInput.type === 'password' ? 'text' : 'password';
+            confirmInput.type = type;
+            toggleConfirm.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = passwordInput.value.trim();
+            const confirmPassword = confirmInput.value.trim();
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (!updateRequirements(password)) {
+                errorDiv.textContent = 'Password does not meet all requirements';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successDiv.textContent = 'Account created successfully! Redirecting to login...';
+                    successDiv.style.display = 'block';
+                    setTimeout(() => window.location.href = '/login.html', 1200);
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Could not connect to server. Please try again.';
+                errorDiv.style.display = 'block';
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

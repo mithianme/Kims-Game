@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard • Kim’s Game</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card: #1a2338;
+            --accent: #6366f1;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+
+        .header { background: #111827; padding: 1.1rem 3rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; color: #e0f2fe; }
+        .nav-links a { color: var(--text-light); text-decoration: none; margin-left: 2.2rem; font-weight: 500; }
+        .nav-links a:hover { color: white; }
+
+        .container { max-width: 1100px; margin: 60px auto; padding: 2rem; }
+
+        .welcome { font-size: 2.4rem; font-weight: 700; margin-bottom: 2rem; animation: fadeInUp 0.6s ease backwards; }
+        .username { color: var(--accent); }
+
+        .profile-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 25px 60px -15px rgba(0,0,0,0.35);
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            animation: fadeInUp 0.7s ease backwards;
+        }
+
+        .avatar { width: 90px; height: 90px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--accent); }
+        .profile-info h3 { margin: 0 0 0.5rem; }
+        .profile-info p { margin: 0.3rem 0; color: var(--text-light); }
+
+        .settings-cog {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .settings-cog:hover { background: rgba(99,102,241,0.1); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .stat-card { background: var(--card); padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.35); height: 170px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .stat-number { font-size: 3.5rem; font-weight: 700; color: var(--accent); margin: 0.5rem 0; line-height: 1; }
+        .level-number { font-size: 2.2rem; }
+        .stat-label { color: var(--text-light); font-size: 1.1rem; }
+
+        .recent { background: var(--card); border-radius: 20px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        .actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 3rem; }
+        .btn { padding: 1.1rem 2.5rem; border-radius: 14px; font-size: 1.15rem; font-weight: 600; cursor: pointer; min-width: 200px; transition: transform 0.3s ease; }
+        .btn-primary { background: var(--accent); color: white; border: none; }
+        .btn-secondary { background: transparent; color: var(--text-light); border: 2px solid var(--border); }
+        .btn:hover { transform: translateY(-3px); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,15,30,0.95); z-index: 200; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); width: 90%; max-width: 920px; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.5); display: flex; min-height: 520px; }
+        .sidebar { width: 240px; background: #111827; padding: 2rem 1rem; }
+        .sidebar-item { padding: 12px 20px; margin-bottom: 4px; border-radius: 10px; cursor: pointer; color: var(--text-light); }
+        .sidebar-item.active { background: var(--accent); color: white; font-weight: 600; }
+        .main-content { flex: 1; padding: 2.5rem; }
+        .close-modal { position: absolute; top: 20px; right: 30px; background: none; border: none; font-size: 1.6rem; color: var(--text-light); cursor: pointer; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text-light); }
+        input { width: 100%; padding: 12px 16px; background: #111827; border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 16px; }
+
+        @media (max-width: 640px) {
+            .header { padding: 0.9rem 1.25rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
+            .logo { font-size: 26px; white-space: nowrap; }
+            .nav-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; }
+            .nav-links a { margin-left: 0 !important; }
+            .container { margin: 30px auto; padding: 1rem; }
+            .welcome { font-size: 1.8rem; }
+            .profile-card { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.5rem; }
+            .recent { padding: 1.25rem; overflow-x: auto; }
+            .modal-content { flex-direction: column; min-height: 0; max-height: 90vh; overflow-y: auto; position: relative; }
+            .sidebar { width: auto; padding: 1rem; }
+            .main-content { padding: 1.5rem; }
+            .close-modal { top: 10px; right: 14px; }
+            input { box-sizing: border-box; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">Kim’s Game</div>
+        <div class="nav-links" id="nav-links"></div>
+    </div>
+
+    <div class="container">
+        <div class="welcome">Welcome back, <span class="username" id="username">Loading...</span>!</div>
+
+        <div class="profile-card">
+            <div class="avatar">👤</div>
+            <div class="profile-info">
+                <h3 id="profile-username">Loading...</h3>
+                <p>Member since: <span id="member-since">—</span></p>
+                <p>Games played: <span id="games-played">0</span></p>
+            </div>
+            <div class="settings-cog" onclick="openSettings()">Settings</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="best-score">—</div>
+                <div class="stat-label">Personal Best</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="accuracy">—</div>
+                <div class="stat-label">Average Accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="games-played-stat">—</div>
+                <div class="stat-label">Games Played</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number level-number" id="current-level">Beginner</div>
+                <div class="stat-label">Current Level</div>
+            </div>
+        </div>
+
+        <div class="recent">
+            <h3>Recent Games</h3>
+            <div id="recent-games">Loading recent games...</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.location.href='/difficulty.html'">Play New Game</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/leaderboard.html'">View Leaderboard</button>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeSettings()">×</button>
+
+            <div class="sidebar">
+                <div class="sidebar-item active">Account Settings</div>
+            </div>
+
+            <div class="main-content">
+                <h2>Personal Information</h2>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="modal-username" placeholder="Username">
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="modal-email" placeholder="New email address">
+                </div>
+
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="current-password" placeholder="Enter current password">
+                </div>
+
+                <div class="form-group">
+                    <label>New Password (optional)</label>
+                    <input type="password" id="new-password" placeholder="Leave blank to keep current">
+                </div>
+
+                <button onclick="saveAccountChanges()" style="margin-top:1.5rem; background:var(--accent); color:white; padding:14px 32px; border:none; border-radius:12px; cursor:pointer;">Save Changes</button>
+
+                <div style="margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+                    <h3 style="color: var(--danger);">Account Actions</h3>
+                    <button onclick="deleteAccount()" style="color: var(--danger); background: transparent; border: 1px solid var(--danger); padding: 10px 20px; border-radius: 8px; cursor: pointer;">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function updateNavigation() {
+            try {
+                const response = await fetch('/api/auth/me');
+                const data = await response.json();
+                const nav = document.getElementById('nav-links');
+
+                if (data.loggedIn) {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/dashboard.html">Dashboard</a>
+                        <a href="/difficulty.html">Play New Game</a>
+                        <a href="/leaderboard.html">Leaderboard</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    `;
+                } else {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/login.html">Login</a>
+                        <a href="/register.html">Register</a>
+                        <a href="/difficulty.html">Play as Guest</a>
+                    `;
+                }
+            } catch (err) {
+                console.error('Navigation error:', err);
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (err) {
+                console.error('Logout error:', err);
+                window.location.href = '/';
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                const meRes = await fetch('/api/auth/me');
+                const meData = await meRes.json();
+
+                if (!meData.loggedIn) {
+                    window.location.replace('/login.html');
+                    return;
+                }
+
+                document.getElementById('username').textContent = meData.username;
+                document.getElementById('profile-username').textContent = meData.username;
+
+                const statsRes = await fetch('/api/user/stats');
+                const stats = await statsRes.json();
+
+                document.getElementById('best-score').textContent = stats.best_score ?? '—';
+                document.getElementById('accuracy').textContent = stats.avg_accuracy != null ? Number(stats.avg_accuracy).toFixed(1) + '%' : '—';
+                document.getElementById('games-played').textContent = stats.games_played || '0';
+                document.getElementById('games-played-stat').textContent = stats.games_played || '0';
+                if (stats.member_since) {
+                    document.getElementById('member-since').textContent = new Date(stats.member_since).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+                }
+
+                let level = 'Beginner';
+                const best = parseInt(stats.best_score) || 0;
+                if (best >= 15) level = 'Memory Master';
+                else if (best >= 10) level = 'Expert';
+                else if (best >= 6) level = 'Intermediate';
+                document.getElementById('current-level').textContent = level;
+
+                const historyRes = await fetch('/api/user/game-history');
+                const history = await historyRes.json();
+                const container = document.getElementById('recent-games');
+
+                if (history.length === 0) {
+                    container.textContent = 'No games played yet. Start playing to see your history here.';
+                } else {
+                    container.replaceChildren(buildHistoryTable(history));
+                }
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                document.getElementById('recent-games').textContent = 'Could not load recent games.';
+            }
+        }
+
+        function buildHistoryTable(history) {
+            const cellStyle = 'text-align:left; padding:12px;';
+            const table = document.createElement('table');
+            table.style.cssText = 'width:100%; border-collapse:collapse; font-size:15px;';
+
+            const headRow = table.createTHead().insertRow();
+            headRow.style.borderBottom = '2px solid var(--border)';
+            ['Difficulty', 'Score', 'Accuracy', 'Date'].forEach(label => {
+                const th = document.createElement('th');
+                th.style.cssText = cellStyle;
+                th.textContent = label;
+                headRow.appendChild(th);
+            });
+
+            const body = table.createTBody();
+            history.forEach(game => {
+                const row = body.insertRow();
+                row.style.borderBottom = '1px solid var(--border)';
+                const date = new Date(game.played_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                const difficulty = game.difficulty.charAt(0).toUpperCase() + game.difficulty.slice(1);
+                [difficulty, `${game.score} / ${game.num_items}`, `${Number(game.accuracy)}%`, date].forEach(value => {
+                    const td = row.insertCell();
+                    td.style.cssText = 'padding:12px;';
+                    td.textContent = value;
+                });
+            });
+
+            return table;
+        }
+
+        function openSettings() {
+            document.getElementById('settings-modal').style.display = 'flex';
+            document.getElementById('modal-username').value = document.getElementById('profile-username').textContent;
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        async function saveAccountChanges() {
+            const username = document.getElementById('modal-username').value.trim();
+            const email = document.getElementById('modal-email').value.trim();
+            const currentPassword = document.getElementById('current-password').value.trim();
+            const newPassword = document.getElementById('new-password').value.trim();
+
+            try {
+                const res = await fetch('/api/user/update-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username || undefined,
+                        email: email || undefined,
+                        currentPassword: currentPassword || undefined,
+                        newPassword: newPassword || undefined
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Profile updated successfully!');
+                    closeSettings();
+                    location.reload();
+                } else {
+                    alert(data.error || 'Failed to update profile');
+                }
+            } catch (err) {
+                alert('Error connecting to server');
+                console.error(err);
+            }
+        }
+
+        function deleteAccount() {
+            if (confirm("⚠️ This will permanently delete your account and all game data. This cannot be undone.\n\nAre you sure?")) {
+                if (confirm("Final confirmation: Delete account?")) {
+                    fetch('/api/user/delete-account', { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.message) {
+                                alert('Account deleted successfully.');
+                                window.location.href = '/';
+                            } else {
+                                alert('Failed to delete account');
+                            }
+                        })
+                        .catch(() => alert('Error deleting account'));
+                }
+            }
+        }
+
+        window.onload = function() {
+            updateNavigation();
+            loadDashboardData();
+        };
+    </script>
+</body>
+</html>

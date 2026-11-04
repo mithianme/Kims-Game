@@ -1,0 +1,29 @@
+{
+  "name": "kims-game",
+  "version": "1.0.0",
+  "description": "Kim's Game: a browser memory game with accounts, score history and a global leaderboard",
+  "main": "app.js",
+  "engines": {
+    "node": ">=18.11.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.18.0",
+    "mysql2": "^3.11.0"
+  },
+  "keywords": [
+    "memory-game",
+    "kims-game",
+    "express",
+    "mysql",
+    "nodejs"
+  ],
+  "license": "ISC"
+}

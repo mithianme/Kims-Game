@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login • Kim’s Game</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card: #1a2338;
+            --accent: #6366f1;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bubble { position: absolute; background: rgba(99,102,241,0.16); animation: floatUp linear infinite; box-shadow: 0 0 40px rgba(99,102,241,0.35); }
+        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.6) translateX(0); opacity: 0; } 15% { opacity: 0.8; } 100% { transform: translateY(-140px) scale(1.4) translateX(var(--sway)); opacity: 0; } }
+        .bubble:nth-child(1) { width: 90px; height: 70px; left: 12%; animation-duration: 24s; animation-delay: -2s; border-radius: 50%; --sway: 50px; }
+        .bubble:nth-child(2) { width: 60px; height: 70px; left: 28%; animation-duration: 19s; animation-delay: -7s; border-radius: 60% 40% 70% 50%; --sway: -65px; }
+        .bubble:nth-child(3) { width: 115px; height: 90px; left: 45%; animation-duration: 31s; animation-delay: -1s; border-radius: 50%; --sway: 75px; }
+        .bubble:nth-child(4) { width: 70px; height: 60px; left: 62%; animation-duration: 22s; animation-delay: -5s; border-radius: 40% 60% 50% 70%; --sway: -50px; }
+        .bubble:nth-child(5) { width: 100px; height: 80px; left: 78%; animation-duration: 27s; animation-delay: -4s; border-radius: 50%; --sway: 60px; }
+        .bubble:nth-child(6) { width: 50px; height: 65px; left: 18%; animation-duration: 17s; animation-delay: -9s; border-radius: 70% 50% 60% 40%; --sway: -40px; }
+        .bubble:nth-child(7) { width: 125px; height: 85px; left: 52%; animation-duration: 34s; animation-delay: -3s; border-radius: 50%; --sway: 85px; }
+        .bubble:nth-child(8) { width: 65px; height: 55px; left: 88%; animation-duration: 21s; animation-delay: -6s; border-radius: 40% 70% 60% 50%; --sway: -70px; }
+        .bubble:nth-child(9) { width: 80px; height: 70px; left: 35%; animation-duration: 25s; animation-delay: -8s; border-radius: 50%; --sway: 55px; }
+        .bubble:nth-child(10) { width: 55px; height: 75px; left: 72%; animation-duration: 20s; animation-delay: -10s; border-radius: 60% 40% 70% 50%; --sway: -60px; }
+
+        .content { position: relative; z-index: 1; }
+
+        .header { background: #111827; padding: 1.1rem 3rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; color: #e0f2fe; }
+        .nav-links a { color: var(--text-light); text-decoration: none; margin-left: 2.2rem; font-weight: 500; }
+        .nav-links a:hover { color: white; }
+
+        .container { max-width: 420px; margin: 140px auto 0; padding: 50px 40px; background: var(--card); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        h1 { text-align: center; font-size: 32px; font-weight: 700; margin-bottom: 40px; color: #f0f9ff; }
+        .form-group { margin-bottom: 28px; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-light); font-size: 15px; }
+        input { width: 100%; padding: 16px 18px; background: #111827; border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 17px; box-sizing: border-box; }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.3); }
+
+        .btn-login { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 19px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s ease; }
+        .btn-login:hover { background: #4f46e5; transform: translateY(-2px); }
+
+        .links { text-align: center; margin-top: 32px; font-size: 15px; }
+        .links a { color: var(--text-light); text-decoration: none; }
+        .links a:hover { color: white; }
+
+        .guest { text-align: center; margin-top: 40px; font-size: 15px; }
+        .guest a { color: var(--accent); text-decoration: none; }
+        .guest a:hover { text-decoration: underline; }
+
+        .error {
+            color: #ef4444;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            font-weight: 500;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.15);
+            border-radius: 8px;
+            border-left: 4px solid #ef4444;
+        }
+        .success { color: #22c55e; text-align: center; margin-top: 15px; display: none; }
+
+        @media (max-width: 640px) {
+            .header { padding: 0.9rem 1.25rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
+            .logo { font-size: 26px; white-space: nowrap; }
+            .nav-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; }
+            .nav-links a { margin-left: 0 !important; }
+            .container { margin: 40px 16px 0; padding: 36px 24px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <div class="logo">Kim’s Game</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/login.html">Login</a>
+                <a href="/register.html">Register</a>
+                <a href="/difficulty.html">Play as Guest</a>
+            </div>
+        </div>
+
+        <div class="container">
+            <h1>Sign In</h1>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+
+            <div id="error" class="error"></div>
+            <div id="success" class="success"></div>
+
+            <div class="links">
+                <a href="/register.html">Create Account</a>
+            </div>
+
+            <div class="guest">
+                Or <a href="/difficulty.html">Play as Guest</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/me');
+                const data = await response.json();
+
+                if (data.loggedIn) {
+                    window.location.href = '/dashboard.html';
+                }
+            } catch (err) {
+                console.error('Could not check auth status');
+            }
+        }
+
+        window.onload = checkAuthStatus;
+
+        const loginForm = document.getElementById('loginForm');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successDiv.textContent = 'Login successful! Redirecting...';
+                    successDiv.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 800);
+                } else {
+                    errorDiv.textContent = data.error || 'Invalid email or password';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Could not connect to server. Please try again.';
+                errorDiv.style.display = 'block';
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

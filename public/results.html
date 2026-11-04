@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results • Kim’s Game</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card: #1a2338;
+            --accent: #6366f1;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+
+        .bubbles { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+        .bubble { position:absolute; background:rgba(99,102,241,0.16); animation:floatUp linear infinite; box-shadow:0 0 40px rgba(99,102,241,0.35); }
+        @keyframes floatUp { 0% { transform:translateY(110vh) scale(0.6) translateX(0); opacity:0; } 15% { opacity:0.8; } 100% { transform:translateY(-140px) scale(1.4) translateX(var(--sway)); opacity:0; } }
+        .bubble:nth-child(1) { width:90px; height:70px; left:12%; animation-duration:24s; animation-delay:-2s; border-radius:50%; --sway:50px; }
+        .bubble:nth-child(2) { width:60px; height:70px; left:28%; animation-duration:19s; animation-delay:-7s; border-radius:60% 40% 70% 50%; --sway:-65px; }
+        .bubble:nth-child(3) { width:115px; height:90px; left:45%; animation-duration:31s; animation-delay:-1s; border-radius:50%; --sway:75px; }
+        .bubble:nth-child(4) { width:70px; height:60px; left:62%; animation-duration:22s; animation-delay:-5s; border-radius:40% 60% 50% 70%; --sway:-50px; }
+        .bubble:nth-child(5) { width:100px; height:80px; left:78%; animation-duration:27s; animation-delay:-4s; border-radius:50%; --sway:60px; }
+        .bubble:nth-child(6) { width:50px; height:65px; left:18%; animation-duration:17s; animation-delay:-9s; border-radius:70% 50% 60% 40%; --sway:-40px; }
+        .bubble:nth-child(7) { width:125px; height:85px; left:52%; animation-duration:34s; animation-delay:-3s; border-radius:50%; --sway:85px; }
+        .bubble:nth-child(8) { width:65px; height:55px; left:88%; animation-duration:21s; animation-delay:-6s; border-radius:40% 70% 60% 50%; --sway:-70px; }
+        .bubble:nth-child(9) { width:80px; height:70px; left:35%; animation-duration:25s; animation-delay:-8s; border-radius:50%; --sway:55px; }
+        .bubble:nth-child(10) { width:55px; height:75px; left:72%; animation-duration:20s; animation-delay:-10s; border-radius:60% 40% 70% 50%; --sway:-60px; }
+
+        .content { position:relative; z-index:1; }
+
+        .header { background:#111827; padding:1.1rem 3rem; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 15px rgba(0,0,0,0.5); position:sticky; top:0; z-index:100; }
+        .logo { font-size:34px; font-weight:700; letter-spacing:-1.5px; color:#e0f2fe; }
+        .nav-links a { color:var(--text-light); text-decoration:none; margin-left:2.2rem; font-weight:500; }
+        .nav-links a:hover { color:white; }
+
+        .container { max-width:800px; margin:40px auto; padding:2rem; text-align:center; }
+        .title { font-size:2.5rem; font-weight:700; margin-bottom:1rem; color:#f0f9ff; animation:fadeInUp 0.6s ease backwards; }
+
+        .score-circle { width:180px; height:180px; border-radius:50%; background:var(--card); margin:2rem auto; display:flex; align-items:center; justify-content:center; box-shadow:0 20px 50px rgba(0,0,0,0.4); animation:fadeInUp 0.8s ease backwards 200ms; }
+        .score-number { font-size:4.5rem; font-weight:700; color:var(--accent); }
+        .accuracy { font-size:2rem; margin:1rem 0; color:var(--success); animation:fadeInUp 0.8s ease backwards 300ms; }
+
+        .breakdown { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin:3rem 0; }
+        .correct { background:var(--card); padding:1.5rem; border-radius:16px; border-left:6px solid var(--success); animation:fadeInUp 0.8s ease backwards 400ms; }
+        .wrong { background:var(--card); padding:1.5rem; border-radius:16px; border-left:6px solid var(--error); animation:fadeInUp 0.8s ease backwards 500ms; }
+
+        .actions { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-top:3rem; }
+        .btn { padding:1rem 3rem; border-radius:14px; font-size:1.15rem; font-weight:600; cursor:pointer; min-width:220px; transition:all 0.3s ease; }
+        .btn-primary { background:var(--accent); color:white; border:none; }
+        .btn-success { background:var(--success); color:white; border:none; }
+        .btn-secondary { background:transparent; color:var(--text-light); border:2px solid var(--border); }
+        .btn:hover { transform:translateY(-4px); box-shadow:0 15px 35px rgba(0,0,0,0.4); }
+
+        .message { margin:1.5rem 0; padding:1rem; border-radius:12px; font-weight:500; display:none; animation:fadeInUp 0.4s ease; }
+        .success { background:rgba(34,197,94,0.2); color:var(--success); }
+        .error { background:rgba(239,68,68,0.2); color:var(--error); }
+
+        @media (max-width: 640px) {
+            .header { padding: 0.9rem 1.25rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
+            .logo { font-size: 26px; white-space: nowrap; }
+            .nav-links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; }
+            .nav-links a { margin-left: 0 !important; }
+            .container { margin: 20px auto; padding: 1rem; }
+            .breakdown { grid-template-columns: 1fr; gap: 1rem; margin: 2rem 0; }
+            .btn { min-width: 0; width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <div class="logo">Kim’s Game</div>
+            <div class="nav-links" id="nav-links"></div>
+        </div>
+
+        <div class="container">
+            <div class="title">Game Results</div>
+
+            <div class="score-circle">
+                <div>
+                    <div class="score-number" id="score">—</div>
+                    <div class="score-label">Score</div>
+                </div>
+            </div>
+
+            <div class="accuracy" id="accuracy">—</div>
+
+            <div class="breakdown">
+                <div class="correct">
+                    <h3>Correct</h3>
+                    <div class="stat-number" id="correct-count">—</div>
+                    <div id="correct-text">out of — items</div>
+                </div>
+                <div class="wrong">
+                    <h3>Incorrect / Missed</h3>
+                    <div class="stat-number" id="wrong-count">—</div>
+                    <div id="wrong-text">items</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-success" id="save-btn" onclick="saveScore()">Save Score</button>
+                <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
+                <button class="btn btn-secondary" onclick="viewLeaderboard()">View Leaderboard</button>
+            </div>
+
+            <div id="save-message" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        async function updateNavigation() {
+            try {
+                const response = await fetch('/api/auth/me');
+                const data = await response.json();
+                const nav = document.getElementById('nav-links');
+
+                if (data.loggedIn) {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/dashboard.html">Dashboard</a>
+                        <a href="/difficulty.html">Play New Game</a>
+                        <a href="/leaderboard.html">Leaderboard</a>
+                        <a href="#" onclick="logout()" style="margin-left:2.2rem;">Logout</a>
+                    `;
+                } else {
+                    nav.innerHTML = `
+                        <a href="/">Home</a>
+                        <a href="/login.html">Login</a>
+                        <a href="/register.html">Register</a>
+                        <a href="/difficulty.html">Play as Guest</a>
+                    `;
+                }
+            } catch (err) {
+                console.error('Could not update navigation');
+                document.getElementById('nav-links').innerHTML = `
+                    <a href="/">Home</a>
+                    <a href="/login.html">Login</a>
+                    <a href="/register.html">Register</a>
+                    <a href="/difficulty.html">Play as Guest</a>
+                `;
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (err) {
+                console.error(err);
+            }
+            window.location.href = '/';
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const difficulty = ['easy', 'medium', 'hard'].includes(params.get('difficulty')) ? params.get('difficulty') : 'easy';
+
+        function readList(name) {
+            try {
+                const value = JSON.parse(params.get(name) || '[]');
+                return Array.isArray(value) ? value.map(String) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        const actualObjects = readList('objects');
+        const userAnswers = readList('answers');
+
+        if (actualObjects.length === 0) {
+            window.location.replace('/difficulty.html');
+        }
+
+        const normalise = value => value.toLowerCase().replace(/[^a-z]/g, '');
+        const remaining = actualObjects.map(normalise);
+        let correct = 0;
+        userAnswers.forEach(answer => {
+            const index = remaining.indexOf(normalise(answer));
+            if (answer.trim() && index !== -1) {
+                remaining.splice(index, 1);
+                correct++;
+            }
+        });
+
+        const score = correct;
+        const accuracy = actualObjects.length > 0 ? Math.round((correct / actualObjects.length) * 100) : 0;
+
+        document.getElementById('score').textContent = score;
+        document.getElementById('accuracy').textContent = accuracy + '% Accuracy';
+        document.getElementById('correct-count').textContent = correct;
+        document.getElementById('correct-text').textContent = `out of ${actualObjects.length} items`;
+        document.getElementById('wrong-count').textContent = actualObjects.length - correct;
+        document.getElementById('wrong-text').textContent = 'items';
+
+        function playAgain() {
+            window.location.href = '/difficulty.html';
+        }
+
+        async function saveScore() {
+            const message = document.getElementById('save-message');
+            const button = document.getElementById('save-btn');
+            message.style.display = 'none';
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/api/game/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        difficulty: difficulty,
+                        score: score,
+                        num_items: actualObjects.length
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    message.className = 'message success';
+                    message.textContent = 'Score saved successfully!';
+                    button.textContent = 'Saved';
+                } else {
+                    message.className = 'message error';
+                    message.textContent = response.status === 401 ? 'Log in to save your score.' : (result.error || 'Failed to save score');
+                    button.disabled = false;
+                }
+                message.style.display = 'block';
+            } catch (err) {
+                message.className = 'message error';
+                message.textContent = 'Could not connect to server';
+                message.style.display = 'block';
+                button.disabled = false;
+                console.error(err);
+            }
+        }
+
+        function viewLeaderboard() {
+            window.location.href = '/leaderboard.html';
+        }
+
+        window.onload = updateNavigation;
+    </script>
+</body>
+</html>
